@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechxoticTH - แอปพลิเคชันร้านค้าสินค้าอิเล็กทรอนิกส์</title>
+    <!-- โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- โหลดฟอนต์ Prompt และ Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- โหลด Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2.5s ease-in-out infinite',
+                        'gradient-x': 'gradientX 8s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 0.4, transform: 'scale(1)' },
+                            '50%': { opacity: 0.8, transform: 'scale(1.05)' },
+                        },
+                        gradientX: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.7); }
+        
+        /* พื้นหลังลายตารางจุด (Dot Pattern) เพิ่มมิติให้หน้าเว็บ */
+        .bg-dot-pattern {
+            background-image: radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .dark .bg-dot-pattern {
+            background-image: radial-gradient(rgba(51, 65, 85, 0.45) 1px, transparent 1px);
+        }
+
+        /* ซ่อน Scrollbar ของแถบหมวดหมู่บนมือถือ */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .product-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 22px 35px -12px rgba(37, 99, 235, 0.22);
+        }
+        .dark .product-card:hover {
+            box-shadow: 0 22px 35px -12px rgba(56, 189, 248, 0.16);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 bg-dot-pattern text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
+    <!-- แถบนำทางด้านบน (Navbar) -->
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-30 shadow-sm shadow-slate-900/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
+            <!-- โลโก้ร้านค้า (Custom Computer SVG Emblem + Gradient Typography) -->
+            <div class="flex items-center gap-3.5 shrink-0 cursor-pointer group" onclick="resetFilters()">
+                <div class="relative w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center">
+                    <!-- แสงเรืองรองด้านหลังโลโก้ -->
+                    <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 blur-md opacity-45 group-hover:opacity-80 group-hover:scale-110 transition-all duration-300"></div>
+                    <!-- กรอบโลโก้หลัก -->
+                    <div class="relative w-full h-full rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 p-[1.5px] shadow-lg group-hover:scale-105 group-hover:-rotate-3 transition-all duration-300">
+                        <div class="w-full h-full rounded-[14px] bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center relative overflow-hidden">
+                            <!-- แสงสะท้อนกระจกด้านบน -->
+                            <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+                            <!-- สัญลักษณ์ SVG รูปคอมพิวเตอร์และหน้าจอเทคโนโลยี -->
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-md" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="3" width="20" height="14" rx="2.5" stroke="currentColor" stroke-width="2" fill="rgba(255,255,255,0.12)"/>
+                                <path d="M8 21H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 17V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="12" cy="10" r="2.5" fill="currentColor"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-1">
+                        <span class="font-extrabold text-xl sm:text-2xl tracking-tight leading-none bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 dark:from-white dark:via-cyan-100 dark:to-blue-200 bg-clip-text text-transparent">Techxotic</span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-[10px] sm:text-xs font-extrabold tracking-wider shadow-sm shadow-blue-500/30">TH</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">ศูนย์รวมแก็ดเจ็ตและไอทีล้ำสมัย</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ช่องค้นหาสินค้า (Desktop) -->
+            <div class="hidden md:flex flex-1 max-w-md relative group">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 group-focus-within:text-blue-500 absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors"></i>
+                <input type="text" id="search-input" placeholder="ค้นหาสมาร์ทโฟน, คอมพิวเตอร์, เกมคอนโซล..." 
+                    class="w-full bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all">
+            </div>
+
+            <!-- ปุ่มควบคุมด้านขวา -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- ปุ่มลงชื่อเข้าใช้ / โปรไฟล์ผู้ใช้ -->
+                <button id="auth-btn" onclick="openAuthModal()" class="p-2.5 px-3.5 rounded-2xl bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 text-xs font-semibold transition-all active:scale-95">
+                    <i data-lucide="user" class="w-4 h-4 text-blue-600 dark:text-cyan-400"></i>
+                    <span id="auth-btn-text">ลงชื่อเข้าใช้</span>
+                </button>
+
+                <!-- ปุ่มสลับโหมดมืด/สว่าง -->
+                <button id="theme-toggle" class="p-2.5 px-3.5 rounded-2xl bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 text-xs font-medium transition-all active:scale-95" aria-label="สลับโหมดสี">
+                    <span class="hidden dark:flex items-center gap-1.5"><i data-lucide="sun" class="w-4 h-4 text-amber-400"></i> <span class="hidden sm:inline">โหมดสว่าง</span></span>
+                    <span class="flex dark:hidden items-center gap-1.5"><i data-lucide="moon" class="w-4 h-4 text-indigo-600"></i> <span class="hidden sm:inline">โหมดมืด</span></span>
+                </button>
+
+                <!-- ปุ่มเปิดตะกร้าสินค้า -->
+                <button id="open-cart-btn" class="relative p-2.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white flex items-center gap-2 font-medium text-sm transition-all shadow-md shadow-blue-600/25 hover:shadow-lg hover:shadow-blue-600/35 active:scale-95">
+                    <i data-lucide="shopping-cart" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    <span class="hidden sm:inline">ตะกร้า</span>
+                    <span id="cart-badge" class="bg-rose-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center shadow-sm">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ช่องค้นหาสินค้า (Mobile) -->
+        <div class="md:hidden px-4 pb-3">
+            <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="search-input-mobile" placeholder="ค้นหาสินค้าอิเล็กทรอนิกส์..." 
+                    class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+    </header>
+
+    <!-- แบนเนอร์โปรโมชัน (Hero Banner) -->
+    <section class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+        <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white p-7 sm:p-11 relative overflow-hidden shadow-2xl shadow-blue-950/20 border border-white/10">
+            <!-- ลวดลายกริดตกแต่งในแบนเนอร์ -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <div class="max-w-xl">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-500/20 backdrop-blur-md border border-blue-400/30 text-cyan-300 text-xs font-semibold mb-4 shadow-inner">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i> โปรโมชันพิเศษประจำเดือน ✨
+                    </span>
+                    <h2 class="text-3xl sm:text-5xl font-bold leading-tight mb-4 tracking-tight">
+                        อัปเกรด<span class="bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">เทคโนโลยีล้ำสมัย</span><br>ส่งตรงถึงมือคุณ
+                    </h2>
+                    <p class="text-slate-300/90 text-sm sm:text-base mb-7 leading-relaxed">ศูนย์รวมสมาร์ทโฟน คอมพิวเตอร์ เกมคอนโซล และแก็ดเจ็ตของแท้ 100% รับประกันศูนย์ไทย พร้อมบริการจัดส่งด่วนฟรีทั่วประเทศ</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="#product-section" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-slate-950 font-bold px-6 py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-cyan-500/25 hover:scale-105 active:scale-95 duration-200">
+                            <span>เลือกช้อปสินค้าเลย</span>
+                            <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                        </a>
+                        <div class="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-xs text-slate-300">
+                            <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> ประกันศูนย์แท้</span>
+                            <span class="w-1 h-1 rounded-full bg-slate-600"></span>
+                            <span class="flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4 text-cyan-400"></i> ส่งฟรีทั่วไทย</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- แกลเลอรีภาพตัวอย่างสินค้าไฮไลต์ในหน้าหลัก (Hero Showcase) -->
+                <div class="hidden lg:grid grid-cols-2 gap-3.5 shrink-0 animate-float w-80">
+                    <div onclick="openProductModal(10)" class="group/item relative h-32 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden shadow-xl cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=400&q=80" alt="TechVault Gaming PC" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                        <span class="absolute bottom-2.5 left-3 text-[11px] font-semibold text-white flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Gaming PC</span>
+                    </div>
+                    <div onclick="openProductModal(2)" class="group/item relative h-32 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden shadow-xl translate-y-4 cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80" alt="TechVault ProBook" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                        <span class="absolute bottom-2.5 left-3 text-[11px] font-semibold text-white flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>ProBook M3</span>
+                    </div>
+                    <div onclick="openProductModal(11)" class="group/item relative h-32 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden shadow-xl cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=400&q=80" alt="TechVault Console" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                        <span class="absolute bottom-2.5 left-3 text-[11px] font-semibold text-white flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>PS5 Pro</span>
+                    </div>
+                    <div onclick="openProductModal(1)" class="group/item relative h-32 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden shadow-xl translate-y-4 cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=400&q=80" alt="TechVault Devices" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                        <span class="absolute bottom-2.5 left-3 text-[11px] font-semibold text-white flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>iPhone 16 Pro</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute -right-16 -bottom-24 w-80 h-80 bg-blue-500/25 rounded-full blur-3xl animate-pulse-glow pointer-events-none"></div>
+            <div class="absolute right-32 -top-20 w-56 h-56 bg-cyan-400/20 rounded-full blur-2xl animate-float pointer-events-none"></div>
+        </div>
+    </section>
+
+    <!-- ส่วนแสดงรายการสินค้า (Product Catalog) -->
+    <main id="product-section" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        
+        <!-- แถบตัวกรองหมวดหมู่และการเรียงลำดับ -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar" id="category-filters">
+                <button data-category="all" class="cat-btn active px-4 py-2.5 rounded-2xl text-sm font-medium bg-blue-600 text-white shadow-md shadow-blue-600/20 shrink-0 transition-all">✨ ทั้งหมด</button>
+                <button data-category="smartphone" class="cat-btn px-4 py-2.5 rounded-2xl text-sm font-medium bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500 shrink-0 transition-all">📱 สมาร์ทโฟน</button>
+                <button data-category="computer" class="cat-btn px-4 py-2.5 rounded-2xl text-sm font-medium bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500 shrink-0 transition-all">💻 คอมพิวเตอร์และโน้ตบุ๊ก</button>
+                <button data-category="console" class="cat-btn px-4 py-2.5 rounded-2xl text-sm font-medium bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500 shrink-0 transition-all">🎮 เกมคอนโซล</button>
+                <button data-category="audio" class="cat-btn px-4 py-2.5 rounded-2xl text-sm font-medium bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500 shrink-0 transition-all">🎧 หูฟังและลำโพง</button>
+                <button data-category="accessory" class="cat-btn px-4 py-2.5 rounded-2xl text-sm font-medium bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500 shrink-0 transition-all">⌨️ อุปกรณ์เสริม</button>
+            </div>
+
+            <div class="flex items-center gap-2.5 self-end lg:self-auto shrink-0">
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400">เรียงตาม:</span>
+                <select id="sort-select" class="bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                    <option value="featured">สินค้าแนะนำ</option>
+                    <option value="price-asc">ราคา: ต่ำไปสูง</option>
+                    <option value="price-desc">ราคา: สูงไปต่ำ</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- กริดแสดงสินค้า -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    </main>
+
+    <!-- ส่วนท้ายเว็บไซต์ (Footer) -->
+    <footer class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                    <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="rgba(255,255,255,0.15)"/>
+                        <path d="M8 21H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 17V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="font-extrabold text-sm text-slate-800 dark:text-slate-200">Techxotic</span>
+                    <span class="px-1 py-0.5 rounded bg-blue-600 text-white text-[9px] font-bold">TH</span>
+                </div>
+                <span class="hidden sm:inline">• ศูนย์รวมสินค้าอิเล็กทรอนิกส์และแก็ดเจ็ตครบวงจร</span>
+            </div>
+            <p>© 2026 TechxoticTH Store. สงวนลิขสิทธิ์ทั้งหมด</p>
+        </div>
+    </footer>
+
+    <!-- แถบตะกร้าสินค้าด้านข้าง -->
+    <div id="cart-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-200 dark:border-slate-800">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-blue-600"></i>
+                <h3 class="font-bold text-lg">ตะกร้าสินค้าของคุณ</h3>
+            </div>
+            <button id="close-cart-btn" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+
+        <div class="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-4">
+            <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                    <span>ยอดรวมสินค้า</span>
+                    <span id="cart-subtotal">฿0</span>
+                </div>
+                <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                    <span>ค่าจัดส่ง</span>
+                    <span id="cart-shipping" class="text-emerald-600 font-medium">ฟรี</span>
+                </div>
+                <div class="flex justify-between text-base font-bold pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <span>ยอดสุทธิ</span>
+                    <span id="cart-total" class="text-blue-600 dark:text-blue-400 text-lg">฿0</span>
+                </div>
+            </div>
+            <button id="checkout-btn" class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl transition-all shadow-md shadow-blue-600/20 flex items-center justify-center gap-2">
+                <span>ดำเนินการสั่งซื้อ</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Modal รายละเอียดสินค้า -->
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white z-10">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="modal-content" class="grid grid-cols-1 md:grid-cols-2"></div>
+        </div>
+    </div>
+
+    <!-- Modal สั่งซื้อสำเร็จ -->
+    <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl border border-slate-200 dark:border-slate-800">
+            <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">สั่งซื้อสินค้าสำเร็จ!</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">ขอบคุณที่ไว้วางใจ TechVaultTH เราได้รับคำสั่งซื้อของคุณเรียบร้อยแล้ว</p>
+            <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 mb-6 text-left text-xs space-y-1.5">
+                <div class="flex justify-between"><span class="text-slate-400">หมายเลขคำสั่งซื้อ:</span> <span id="order-number" class="font-mono font-bold">#TV-84920</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">ยอดชำระทั้งสิ้น:</span> <span id="order-paid-amount" class="font-bold text-blue-600 dark:text-blue-400">฿0</span></div>
+            </div>
+            <button onclick="closeCheckoutModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+                กลับไปเลือกซื้อสินค้าต่อ
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal ลงชื่อเข้าใช้ / บัญชีผู้ใช้ -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- ส่วนฟอร์มลงชื่อเข้าใช้ -->
+            <div id="login-view">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 text-white flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
+                    <i data-lucide="user-check" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold text-center mb-1">ลงชื่อเข้าใช้ TechxoticTH</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 text-center mb-6">เข้าสู่ระบบเพื่อรับสิทธิพิเศษและติดตามคำสั่งซื้อของคุณ</p>
+
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">อีเมล หรือ ชื่อผู้ใช้งาน</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="login-username" required placeholder="เช่น chetthaphong@email.com"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">รหัสผ่าน</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                            <input type="password" id="login-password" required placeholder="••••••••"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-2xl transition-all shadow-lg shadow-blue-600/25 mt-2">
+                        เข้าสู่ระบบ
+                    </button>
+                </form>
+
+                <!-- เส้นคั่นทางเลือกการเข้าสู่ระบบ -->
+                <div class="relative my-5">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-200 dark:border-slate-700/80"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="px-3 bg-white dark:bg-slate-900 text-slate-400">หรือลงชื่อเข้าใช้ด้วย</span>
+                    </div>
+                </div>
+
+                <!-- ปุ่มลงชื่อเข้าใช้ด้วย Google และ Outlook -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button type="button" onclick="loginWithProvider('Google')" class="w-full py-2.5 px-3 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm">
+                        <!-- ไอคอน Google -->
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24z"/>
+                            <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96z"/>
+                        </svg>
+                        <span>Google</span>
+                    </button>
+
+                    <button type="button" onclick="loginWithProvider('Outlook')" class="w-full py-2.5 px-3 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm">
+                        <!-- ไอคอน Outlook -->
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
+                            <rect x="2" y="4" width="12" height="16" rx="2.5" fill="#0078D4"/>
+                            <path d="M14 7.5H20.5C21.3284 7.5 22 8.17157 22 9V17.5C22 18.3284 21.3284 19 20.5 19H14V7.5Z" fill="#28A8EA"/>
+                            <path d="M14 7.5L22 12.5V9C22 8.17157 21.3284 7.5 20.5 7.5H14Z" fill="#50D9FF"/>
+                            <circle cx="8" cy="12" r="3" stroke="white" stroke-width="1.8"/>
+                        </svg>
+                        <span>Outlook</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ส่วนแสดงข้อมูลเมื่อเข้าสู่ระบบแล้ว -->
+            <div id="profile-view" class="hidden text-center">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-2">สมาชิก TechxoticTH VIP ✨</span>
+                <h3 id="profile-display-name" class="text-xl font-bold mb-1">ผู้ใช้งาน</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">สถานะ: เข้าสู่ระบบเรียบร้อยแล้ว</p>
+                <button onclick="logoutUser()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-500/20">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>ออกจากระบบ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        const products = [
+            {
+                id: 1,
+                name: "iPhone 16 Pro Max 256GB",
+                category: "smartphone",
+                categoryName: "📱 สมาร์ทโฟน",
+                price: 48900,
+                rating: 4.9,
+                badge: "ขายดี",
+                icon: "smartphone",
+                image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80",
+                color: "from-slate-700 to-slate-900",
+                specs: "จอ Super Retina XDR 6.9 นิ้ว • ชิป A18 Pro • กล้อง Pro 48MP • ไทเทเนียม",
+                description: "สมาร์ทโฟนเรือธงรุ่นล่าสุด มาพร้อมตัวเครื่องไทเทเนียมแข็งแกร่ง น้ำหนักเบา และปุ่มควบคุมกล้องอัจฉริยะ"
+            },
+            {
+                id: 2,
+                name: "MacBook Air M3 13-inch",
+                category: "computer",
+                categoryName: "💻 คอมพิวเตอร์และโน้ตบุ๊ก",
+                price: 39900,
+                rating: 4.8,
+                badge: "แนะนำ",
+                icon: "laptop",
+                image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+                color: "from-blue-600 to-indigo-800",
+                specs: "ชิป Apple M3 • RAM 16GB • SSD 512GB • แบตเตอรี่สูงสุด 18 ชม.",
+                description: "บางเฉียบ พกพาสะดวก พร้อมประสิทธิภาพระดับโปรสำหรับการทำงานและตัดต่อวิดีโอ"
+            },
+            {
+                id: 3,
+                name: "Sony WH-1000XM5 Wireless",
+                category: "audio",
+                categoryName: "🎧 หูฟังและลำโพง",
+                price: 12990,
+                rating: 4.9,
+                badge: "ลดราคา",
+                icon: "headphones",
+                image: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=800&q=80",
+                color: "from-zinc-700 to-neutral-900",
+                specs: "ตัดเสียงรบกวน ANC ขั้นเทพ • ไมโครโฟน 8 ตัว • แบต 30 ชั่วโมง",
+                description: "หูฟังไร้สายตัดเสียงรบกวนที่ดีที่สุด มอบคุณภาพเสียงคมชัดระดับ Hi-Res"
+            },
+            {
+                id: 4,
+                name: "Samsung Galaxy S25 Ultra",
+                category: "smartphone",
+                categoryName: "📱 สมาร์ทโฟน",
+                price: 46900,
+                rating: 4.8,
+                badge: "ใหม่",
+                icon: "smartphone",
+                image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80",
+                color: "from-cyan-600 to-blue-800",
+                specs: "จอ Dynamic AMOLED 2X • กล้อง 200MP • ปากกา S Pen ในตัว • Galaxy AI",
+                description: "สุดยอดสมาร์ทโฟน Android พร้อมปากกา S Pen และฟีเจอร์ AI อัจฉริยะ"
+            },
+            {
+                id: 5,
+                name: "ASUS ROG Zephyrus G14",
+                category: "computer",
+                categoryName: "💻 คอมพิวเตอร์และโน้ตบุ๊ก",
+                price: 54900,
+                rating: 4.7,
+                badge: "เกมมิ่ง",
+                icon: "laptop",
+                image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80",
+                color: "from-rose-600 to-purple-900",
+                specs: "Ryzen 9 • RTX 4070 • จอ OLED 120Hz • RAM 32GB",
+                description: "เกมมิ่งโน้ตบุ๊กขนาดกะทัดรัด พลังแรงเหลือล้น หน้าจอ OLED สีสันสดใส"
+            },
+            {
+                id: 6,
+                name: "Keychron Q1 Pro Mechanical",
+                category: "accessory",
+                categoryName: "⌨️ อุปกรณ์เสริม",
+                price: 6490,
+                rating: 4.8,
+                badge: null,
+                icon: "keyboard",
+                image: "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=800&q=80",
+                color: "from-amber-600 to-orange-800",
+                specs: "คีย์บอร์ดไร้สาย QMK/VIA • บอดี้ Full Aluminum • Hot-swappable",
+                description: "คีย์บอร์ดเมคานิคอลระดับพรีเมียม สัมผัสการพิมพ์นุ่มนวล"
+            },
+            {
+                id: 7,
+                name: "Marshall Emberton II Speaker",
+                category: "audio",
+                categoryName: "🎧 หูฟังและลำโพง",
+                price: 7490,
+                rating: 4.7,
+                badge: null,
+                icon: "speaker",
+                image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80",
+                color: "from-stone-700 to-stone-900",
+                specs: "เสียงรอบทิศทาง 360° • กันน้ำกันฝุ่น IP67 • แบต 30+ ชม.",
+                description: "ลำโพงพกพาดีไซน์คลาสสิกอันเป็นเอกลักษณ์ เบสแน่น เสียงดังกระหึ่ม"
+            },
+            {
+                id: 8,
+                name: "Apple Watch Series 10 GPS",
+                category: "accessory",
+                categoryName: "⌨️ อุปกรณ์เสริม",
+                price: 14900,
+                rating: 4.9,
+                badge: "ใหม่",
+                icon: "watch",
+                image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80",
+                color: "from-emerald-600 to-teal-800",
+                specs: "ตัวเรือนบางลง • จอใหญ่สว่างขึ้น • วัดคลื่นหัวใจและออกซิเจนในเลือด",
+                description: "ผู้ช่วยดูแลสุขภาพและการออกกำลังกายบนข้อมือคุณ"
+            },
+            {
+                id: 9,
+                name: "Apple iMac 24-inch M4",
+                category: "computer",
+                categoryName: "💻 คอมพิวเตอร์และโน้ตบุ๊ก",
+                price: 49900,
+                rating: 4.9,
+                badge: "ขายดี",
+                icon: "monitor",
+                image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
+                color: "from-sky-500 to-blue-700",
+                specs: "ชิป Apple M4 • จอ Retina 4.5K • RAM 16GB • SSD 512GB",
+                description: "คอมพิวเตอร์ตั้งโต๊ะ All-in-One ดีไซน์บางเฉียบสีสันสดใส หน้าจอ Retina 4.5K"
+            },
+            {
+                id: 10,
+                name: "Custom Gaming PC RTX 4080 Super",
+                category: "computer",
+                categoryName: "💻 คอมพิวเตอร์และโน้ตบุ๊ก",
+                price: 79900,
+                rating: 4.9,
+                badge: "สเปกเทพ",
+                icon: "cpu",
+                image: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=800&q=80",
+                color: "from-violet-600 to-fuchsia-900",
+                specs: "Core i7-14700K • RTX 4080 Super 16GB • RAM DDR5 32GB • ชุดน้ำ",
+                description: "คอมพิวเตอร์ประกอบระดับไฮเอนด์สำหรับเล่นเกม 4K และงานเรนเดอร์ 3D"
+            },
+            {
+                id: 11,
+                name: "PlayStation 5 Pro 2TB",
+                category: "console",
+                categoryName: "🎮 เกมคอนโซล",
+                price: 29490,
+                rating: 4.9,
+                badge: "มาใหม่",
+                icon: "gamepad-2",
+                image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80",
+                color: "from-blue-700 to-indigo-950",
+                specs: "SSD 2TB • รองรับ 4K 120Hz & Ray Tracing ขั้นสูง • จอย DualSense",
+                description: "เครื่องเล่นเกมคอนโซลรุ่นอัปเกรดประสิทธิภาพสูง กราฟิกคมชัดสมจริง เฟรมเรตลื่นไหลระดับโปร"
+            },
+            {
+                id: 12,
+                name: "Xbox Series X 1TB",
+                category: "console",
+                categoryName: "🎮 เกมคอนโซล",
+                price: 20990,
+                rating: 4.9,
+                badge: "แนะนำ",
+                icon: "gamepad-2",
+                image: "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?auto=format&fit=crop&w=800&q=80",
+                color: "from-emerald-700 to-slate-900",
+                specs: "SSD 1TB NVMe • รองรับความละเอียดแท้ 4K 120 FPS • Xbox Velocity Architecture",
+                description: "คอนโซลที่ทรงพลังที่สุดจาก Xbox พร้อมเล่นเกมเรือธงผ่าน Xbox Game Pass ได้อย่างสะใจ"
+            },
+            {
+                id: 13,
+                name: "Nintendo Switch OLED Model",
+                category: "console",
+                categoryName: "🎮 เกมคอนโซล",
+                price: 11990,
+                rating: 4.8,
+                badge: "ยอดนิยม",
+                icon: "gamepad",
+                image: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=800&q=80",
+                color: "from-red-600 to-rose-800",
+                specs: "หน้าจอ OLED 7 นิ้ว • ความจำ 64GB • เล่นได้ทั้งพกพาและต่อทีวี",
+                description: "เครื่องเล่นเกมพกพายอดฮิต หน้าจอ OLED สีสันสดใส สนุกได้ทุกที่ทุกเวลากับครอบครัวและเพื่อน"
+            }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('techvault_cart')) || [];
+        let selectedCategory = 'all';
+        let searchQuery = '';
+        let sortBy = 'featured';
+
+        lucide.createIcons();
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-900 dark:bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-xl text-sm font-medium flex items-center gap-2.5 transform translate-y-4 opacity-0 transition-all duration-300 border border-slate-700';
+            toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('techvault_theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('techvault_theme', isDark ? 'dark' : 'light');
+            showToast(isDark ? 'เปิดใช้งานโหมดมืด (Dark Mode) 🌙' : 'เปิดใช้งานโหมดสว่าง (Light Mode) ☀️');
+        });
+
+        function formatPrice(price) {
+            return '฿' + price.toLocaleString('th-TH');
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            let filtered = products.filter(p => {
+                const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
+                const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    p.specs.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            if (sortBy === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+            if (sortBy === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+                        <p class="text-base font-medium">ไม่พบสินค้าที่ตรงกับการค้นหา</p>
+                        <button onclick="resetFilters()" class="mt-3 text-sm text-blue-600 hover:underline">ล้างตัวกรองทั้งหมด</button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card group bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-3xl border border-slate-200/80 dark:border-slate-800/90 overflow-hidden flex flex-col shadow-sm">
+                    <div onclick="openProductModal(${product.id})" class="h-52 bg-gradient-to-br ${product.color} relative flex items-center justify-center cursor-pointer overflow-hidden">
+                        <img src="${product.image}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="hidden w-22 h-22 p-5 rounded-3xl bg-white/15 backdrop-blur-md items-center justify-center text-white border border-white/25 shadow-xl">
+                            <i data-lucide="${product.icon}" class="w-11 h-11"></i>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-transparent to-slate-950/20 pointer-events-none"></div>
+                        ${product.badge ? `<span class="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md text-slate-900 text-[11px] font-bold px-3 py-1 rounded-xl shadow-md">${product.badge}</span>` : ''}
+                        <span class="absolute bottom-3.5 right-3.5 bg-black/55 backdrop-blur-md text-white text-xs font-medium px-2.5 py-1 rounded-xl flex items-center gap-1 border border-white/15">
+                            <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i> ${product.rating}
+                        </span>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">${product.categoryName}</span>
+                            <h3 onclick="openProductModal(${product.id})" class="font-bold text-base mt-2 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors cursor-pointer line-clamp-1">${product.name}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">${product.specs}</p>
+                        </div>
+
+                        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                            <div>
+                                <span class="text-[11px] text-slate-400 block">ราคาพิเศษ</span>
+                                <span class="font-bold text-lg text-slate-900 dark:text-white">${formatPrice(product.price)}</span>
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-90 text-white p-2.5 px-4 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-blue-600/20">
+                                <i data-lucide="plus" class="w-4 h-4 transition-transform group-hover:rotate-90"></i>
+                                <span>ใส่ตะกร้า</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-btn').forEach(b => {
+                    b.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
+                    b.classList.add('bg-white/90', 'dark:bg-slate-900/90', 'text-slate-600', 'dark:text-slate-300');
+                });
+                btn.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
+                btn.classList.remove('bg-white/90', 'dark:bg-slate-900/90', 'text-slate-600', 'dark:text-slate-300');
+                selectedCategory = btn.dataset.category;
+                renderProducts();
+            });
+        });
+
+        function handleSearch(e) {
+            searchQuery = e.target.value;
+            document.getElementById('search-input').value = searchQuery;
+            document.getElementById('search-input-mobile').value = searchQuery;
+            renderProducts();
+        }
+        document.getElementById('search-input').addEventListener('input', handleSearch);
+        document.getElementById('search-input-mobile').addEventListener('input', handleSearch);
+        document.getElementById('sort-select').addEventListener('change', (e) => {
+            sortBy = e.target.value;
+            renderProducts();
+        });
+
+        window.resetFilters = function() {
+            selectedCategory = 'all';
+            searchQuery = '';
+            sortBy = 'featured';
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-input-mobile').value = '';
+            document.getElementById('sort-select').value = 'featured';
+            document.querySelector('.cat-btn[data-category="all"]').click();
+        };
+
+        function saveCart() {
+            localStorage.setItem('techvault_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        window.addToCart = function(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            saveCart();
+            showToast(`เพิ่ม "${product.name}" ลงตะกร้าแล้ว`);
+        };
+
+        window.updateQty = function(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+            saveCart();
+        };
+
+        window.removeFromCart = function(productId) {
+            cart = cart.filter(i => i.id !== productId);
+            saveCart();
+        };
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const container = document.getElementById('cart-items-container');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const totalEl = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            badge.textContent = totalQty;
+            subtotalEl.textContent = formatPrice(subtotal);
+            totalEl.textContent = formatPrice(subtotal);
+            checkoutBtn.disabled = cart.length === 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center text-slate-400 py-12">
+                        <i data-lucide="shopping-cart" class="w-12 h-12 mb-3 opacity-30"></i>
+                        <p class="text-sm font-medium">ตะกร้าสินค้าของคุณยังว่างอยู่</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-3.5 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-700/70">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shrink-0 overflow-hidden relative">
+                            ${item.image ? `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none';" class="w-full h-full object-cover">` : `<i data-lucide="${item.icon}" class="w-6 h-6"></i>`}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-sm truncate">${item.name}</h4>
+                            <p class="text-blue-600 dark:text-blue-400 font-bold text-sm mt-0.5">${formatPrice(item.price)}</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="updateQty(${item.id}, -1)" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs font-bold">-</button>
+                                <span class="text-xs font-semibold w-5 text-center">${item.qty}</span>
+                                <button onclick="updateQty(${item.id}, 1)" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs font-bold">+</button>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${item.id})" class="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        const cartDrawer = document.getElementById('cart-drawer');
+        const cartOverlay = document.getElementById('cart-overlay');
+
+        function openCart() {
+            cartOverlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                cartOverlay.classList.remove('opacity-0');
+                cartDrawer.classList.remove('translate-x-full');
+            });
+        }
+
+        function closeCart() {
+            cartOverlay.classList.add('opacity-0');
+            cartDrawer.classList.add('translate-x-full');
+            setTimeout(() => cartOverlay.classList.add('hidden'), 300);
+        }
+
+        document.getElementById('open-cart-btn').addEventListener('click', openCart);
+        document.getElementById('close-cart-btn').addEventListener('click', closeCart);
+        cartOverlay.addEventListener('click', closeCart);
+
+        window.openProductModal = function(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            const modal = document.getElementById('product-modal');
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = `
+                <div class="bg-gradient-to-br ${product.color} relative flex items-center justify-center min-h-[260px] overflow-hidden">
+                    <img src="${product.image}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover">
+                    <div class="hidden w-28 h-28 rounded-3xl bg-white/20 backdrop-blur-md items-center justify-center text-white border border-white/30 shadow-2xl">
+                        <i data-lucide="${product.icon}" class="w-14 h-14"></i>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
+                </div>
+                <div class="p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">${product.categoryName}</span>
+                            <span class="text-xs flex items-center gap-1 font-medium text-amber-500"><i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> ${product.rating} / 5.0</span>
+                        </div>
+                        <h3 class="text-xl font-bold mt-2">${product.name}</h3>
+                        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">${formatPrice(product.price)}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-4 leading-relaxed">${product.description}</p>
+                        <div class="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-500 dark:text-slate-400">
+                            <strong class="text-slate-700 dark:text-slate-200 block mb-1">สเปกเด่น:</strong>
+                            ${product.specs}
+                        </div>
+                    </div>
+                    <button onclick="addToCart(${product.id}); closeProductModal();" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                        <span>เพิ่มลงตะกร้าสินค้า</span>
+                    </button>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        };
+
+        window.closeProductModal = function() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        document.getElementById('checkout-btn').addEventListener('click', () => {
+            if (cart.length === 0) return;
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const randomOrder = '#TX-' + Math.floor(10000 + Math.random() * 90000);
+
+            document.getElementById('order-number').textContent = randomOrder;
+            document.getElementById('order-paid-amount').textContent = formatPrice(total);
+
+            closeCart();
+            cart = [];
+            saveCart();
+
+            const checkoutModal = document.getElementById('checkout-modal');
+            checkoutModal.classList.remove('hidden');
+            checkoutModal.classList.add('flex');
+            lucide.createIcons();
+        });
+
+        window.closeCheckoutModal = function() {
+            const checkoutModal = document.getElementById('checkout-modal');
+            checkoutModal.classList.add('hidden');
+            checkoutModal.classList.remove('flex');
+        };
+
+        // ระบบลงชื่อเข้าใช้ (Authentication UI State)
+        let currentUser = null;
+
+        function updateAuthUI() {
+            const btnText = document.getElementById('auth-btn-text');
+            const loginView = document.getElementById('login-view');
+            const profileView = document.getElementById('profile-view');
+            const displayName = document.getElementById('profile-display-name');
+
+            if (currentUser) {
+                btnText.textContent = currentUser;
+                loginView.classList.add('hidden');
+                profileView.classList.remove('hidden');
+                displayName.textContent = currentUser;
+            } else {
+                btnText.textContent = 'ลงชื่อเข้าใช้';
+                loginView.classList.remove('hidden');
+                profileView.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        window.openAuthModal = function() {
+            updateAuthUI();
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeAuthModal = function() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const rawInput = document.getElementById('login-username').value.trim();
+            if (!rawInput) return;
+            // ดึงชื่อผู้ใช้ (ตัดส่วน @domain ออกถ้ากรอกเป็นอีเมล)
+            currentUser = rawInput.includes('@') ? rawInput.split('@')[0] : rawInput;
+            document.getElementById('login-form').reset();
+            updateAuthUI();
+            closeAuthModal();
+            showToast(`ยินดีต้อนรับคุณ ${currentUser} 🎉`);
+        });
+
+        window.loginWithProvider = function(provider) {
+            currentUser = `สมาชิก ${provider}`;
+            updateAuthUI();
+            closeAuthModal();
+            showToast(`ลงชื่อเข้าใช้ด้วย ${provider} สำเร็จแล้ว 🎉`);
+        };
+
+        window.logoutUser = function() {
+            currentUser = null;
+            updateAuthUI();
+            closeAuthModal();
+            showToast('ออกจากระบบเรียบร้อยแล้ว');
+        };
+
+        renderProducts();
+        updateCartUI();
+    </script>
+</body>
+</html>
